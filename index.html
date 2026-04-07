@@ -1,0 +1,634 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <title>ДЗ Кристина - 7 класс</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', Helvetica, Arial, sans-serif;
+            background: linear-gradient(135deg, #1e1e2f 0%, #2a2a40 100%);
+            min-height: 100vh;
+            padding: 16px;
+            padding-bottom: 40px;
+        }
+
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        .header {
+            background: white;
+            border-radius: 24px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 1.8rem;
+            color: #1f2937;
+            margin-bottom: 4px;
+        }
+
+        .header p {
+            color: #6b7280;
+            font-size: 0.85rem;
+        }
+
+        .update-status {
+            background: #f3f4f6;
+            border-radius: 12px;
+            padding: 8px 12px;
+            margin-top: 12px;
+            font-size: 0.7rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+
+        .refresh-btn {
+            background: #4f46e5;
+            color: white;
+            border: none;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 0.7rem;
+            cursor: pointer;
+        }
+
+        .legend {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 16px;
+            margin-top: 12px;
+            padding-top: 12px;
+            border-top: 1px solid #e5e7eb;
+        }
+
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 0.7rem;
+            font-weight: 600;
+        }
+
+        .legend-color {
+            width: 20px;
+            height: 20px;
+            border-radius: 6px;
+        }
+
+        .legend-color.blue { background: #2563eb; }
+        .legend-color.green { background: #059669; }
+        .legend-color.yellow { background: #d97706; }
+        .legend-color.red { background: #dc2626; }
+
+        .subject-tabs {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 16px;
+            background: white;
+            padding: 6px;
+            border-radius: 60px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            position: sticky;
+            top: 8px;
+            z-index: 10;
+        }
+
+        .subject-btn {
+            flex: 1;
+            padding: 10px 8px;
+            border: none;
+            background: transparent;
+            border-radius: 40px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            color: #6b7280;
+        }
+
+        .subject-btn.active {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .homework-list {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        /* ===== ЦВЕТА КАРТОЧЕК (КОНТРАСТНЫЕ) ===== */
+        .homework-card {
+            border-radius: 20px;
+            padding: 16px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            transition: all 0.2s ease;
+            animation: fadeIn 0.3s ease;
+            border-left: 6px solid;
+        }
+
+        /* Текущее ДЗ — НАСЫЩЕННЫЙ СИНИЙ */
+        .homework-card.status-blue {
+            background: #1e40af;
+            border-left-color: #60a5fa;
+        }
+        .homework-card.status-blue .task,
+        .homework-card.status-blue .card-header span,
+        .homework-card.status-blue .remaining,
+        .homework-card.status-blue .deadline,
+        .homework-card.status-blue .date {
+            color: white;
+        }
+        .homework-card.status-blue .remaining {
+            background: rgba(255,255,255,0.15);
+            color: #bfdbfe;
+        }
+
+        /* ДЗ сдано полностью — НАСЫЩЕННЫЙ ЗЕЛЁНЫЙ */
+        .homework-card.status-green {
+            background: #065f46;
+            border-left-color: #34d399;
+        }
+        .homework-card.status-green .task,
+        .homework-card.status-green .card-header span,
+        .homework-card.status-green .remaining,
+        .homework-card.status-green .deadline,
+        .homework-card.status-green .date {
+            color: white;
+        }
+        .homework-card.status-green .remaining {
+            background: rgba(255,255,255,0.15);
+            color: #a7f3d0;
+        }
+
+        /* Есть недоделки — НАСЫЩЕННЫЙ ЖЁЛТЫЙ/ОРАНЖЕВЫЙ */
+        .homework-card.status-yellow {
+            background: #b45309;
+            border-left-color: #fbbf24;
+        }
+        .homework-card.status-yellow .task,
+        .homework-card.status-yellow .card-header span,
+        .homework-card.status-yellow .remaining,
+        .homework-card.status-yellow .deadline,
+        .homework-card.status-yellow .date {
+            color: white;
+        }
+        .homework-card.status-yellow .remaining {
+            background: rgba(255,255,255,0.15);
+            color: #fde68a;
+        }
+
+        /* ДЗ не сдано — НАСЫЩЕННЫЙ КРАСНЫЙ */
+        .homework-card.status-red {
+            background: #991b1b;
+            border-left-color: #f87171;
+        }
+        .homework-card.status-red .task,
+        .homework-card.status-red .card-header span,
+        .homework-card.status-red .remaining,
+        .homework-card.status-red .deadline,
+        .homework-card.status-red .date {
+            color: white;
+        }
+        .homework-card.status-red .remaining {
+            background: rgba(255,255,255,0.15);
+            color: #fecaca;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: baseline;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-bottom: 10px;
+        }
+
+        .subject-tag {
+            font-size: 0.7rem;
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-weight: 600;
+            background: rgba(0,0,0,0.25);
+            color: white;
+        }
+        .tag-algebra::before { content: "✏️ "; }
+        .tag-geometry::before { content: "📐 "; }
+        .tag-dop::before { content: "⭐ "; }
+
+        .date {
+            font-size: 0.7rem;
+            opacity: 0.85;
+        }
+
+        .task {
+            font-weight: 700;
+            font-size: 1rem;
+            margin-bottom: 8px;
+            word-break: break-word;
+        }
+
+        .remaining {
+            background: rgba(255,255,255,0.12);
+            padding: 10px;
+            border-radius: 12px;
+            font-size: 0.8rem;
+            margin-top: 8px;
+            word-break: break-word;
+        }
+
+        .deadline {
+            margin-top: 10px;
+            font-size: 0.75rem;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            flex-wrap: wrap;
+            opacity: 0.9;
+        }
+
+        .deadline-date {
+            font-weight: 600;
+        }
+
+        .loading {
+            background: white;
+            border-radius: 20px;
+            padding: 60px 20px;
+            text-align: center;
+            color: #9ca3af;
+        }
+
+        .empty-state {
+            background: white;
+            border-radius: 20px;
+            padding: 60px 20px;
+            text-align: center;
+            color: #9ca3af;
+        }
+
+        .error-message {
+            background: #fee2e2;
+            border-radius: 20px;
+            padding: 20px;
+            text-align: center;
+            color: #dc2626;
+            margin-top: 20px;
+        }
+
+        .footer {
+            margin-top: 20px;
+            text-align: center;
+            font-size: 0.7rem;
+            color: rgba(255,255,255,0.5);
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>📚 ДЗ Кристина</h1>
+            <p>7 класс • Алгебра / Геометрия / Доп.математика</p>
+            <div class="update-status">
+                <span>🟢 Данные из GitHub</span>
+                <span id="lastUpdateTime">—</span>
+                <button class="refresh-btn" onclick="loadData()">🔄 Обновить</button>
+            </div>
+            <div class="legend">
+                <div class="legend-item"><div class="legend-color blue"></div><span>текущее дз</span></div>
+                <div class="legend-item"><div class="legend-color green"></div><span>дз сдано полностью</span></div>
+                <div class="legend-item"><div class="legend-color yellow"></div><span>есть недоделки</span></div>
+                <div class="legend-item"><div class="legend-color red"></div><span>дз не сдано</span></div>
+            </div>
+        </div>
+
+        <div class="subject-tabs">
+            <button class="subject-btn active" data-subject="all">📋 Все</button>
+            <button class="subject-btn" data-subject="algebra">📐 Алгебра</button>
+            <button class="subject-btn" data-subject="geometry">📏 Геометрия</button>
+            <button class="subject-btn" data-subject="dop">⭐ Доп</button>
+        </div>
+
+        <div id="homeworkContainer">
+            <div class="loading">🔄 Загрузка данных с GitHub...</div>
+        </div>
+
+        <div class="footer">
+            📁 Файл автоматически загружается с GitHub
+        </div>
+    </div>
+
+    <script src="https://cdn.sheetjs.com/xlsx-0.20.2/package/dist/xlsx.full.min.js"></script>
+    <script>
+        let allHomework = [];
+        let currentFilter = "all";
+
+        // ⚠️ ЗАМЕНИТЕ ЭТУ ССЫЛКУ НА ВАШУ (ссылка на Excel-файл в GitHub)
+        // Как получить: загрузите Excel на GitHub → откройте файл → нажмите "Raw" → скопируйте URL
+        const EXCEL_FILE_URL = "https://raw.githubusercontent.com/ВАШ_ЛОГИН/НАЗВАНИЕ_РЕПОЗИТОРИЯ/main/ДЗ%20Кристина%207кл..xls";
+
+        const homeworkContainer = document.getElementById('homeworkContainer');
+
+        function excelDateToJSDate(excelDate) {
+            if (!excelDate) return null;
+            if (typeof excelDate === 'string') return excelDate;
+            if (typeof excelDate === 'number') {
+                const msPerDay = 86400000;
+                const excelEpoch = new Date(1899, 11, 30);
+                const date = new Date(excelEpoch.getTime() + excelDate * msPerDay);
+                return date;
+            }
+            return null;
+        }
+
+        function formatDate(dateValue) {
+            if (!dateValue) return "";
+            
+            let date;
+            if (typeof dateValue === 'number') {
+                date = excelDateToJSDate(dateValue);
+            } else if (typeof dateValue === 'string') {
+                if (dateValue.includes('-')) {
+                    const parts = dateValue.split('-');
+                    if (parts.length === 3) {
+                        const months = ["янв", "фев", "мар", "апр", "май", "июн", "июл", "авг", "сен", "окт", "ноя", "дек"];
+                        return `${parseInt(parts[2])} ${months[parseInt(parts[1])-1]} ${parts[0]}`;
+                    }
+                    return dateValue;
+                }
+                date = new Date(dateValue);
+            } else {
+                return "";
+            }
+            
+            if (!date || isNaN(date.getTime())) return String(dateValue);
+            
+            const months = ["янв", "фев", "мар", "апр", "май", "июн", "июл", "авг", "сен", "окт", "ноя", "дек"];
+            const day = date.getDate();
+            const month = months[date.getMonth()];
+            const year = date.getFullYear();
+            
+            return `${day} ${month} ${year}`;
+        }
+
+        function hasRemaining(item) {
+            return item.remaining && String(item.remaining).trim() !== "" && item.remaining !== "undefined";
+        }
+
+        function isAllRemaining(item) {
+            if (!hasRemaining(item)) return false;
+            const remainingText = String(item.remaining).trim().toLowerCase();
+            const cleaned = remainingText.replace(/[.,\s]/g, '');
+            return cleaned === "все" || cleaned === "всё";
+        }
+
+        function isOverdue(deadline) {
+            if (!deadline || deadline === "") return false;
+            
+            const today = new Date();
+            today.setHours(0, 0, 0, 0);
+            
+            let deadlineDate;
+            if (typeof deadline === 'number') {
+                deadlineDate = excelDateToJSDate(deadline);
+            } else {
+                deadlineDate = new Date(deadline);
+            }
+            
+            if (!deadlineDate || isNaN(deadlineDate.getTime())) return false;
+            deadlineDate.setHours(0, 0, 0, 0);
+            return deadlineDate < today;
+        }
+
+        function getStatus(item) {
+            const hasRemainingWork = hasRemaining(item);
+            const isDeadlineOverdue = isOverdue(item.deadline);
+            const isAllWork = isAllRemaining(item);
+            
+            if (isAllWork) return "red";
+            if (hasRemainingWork && !isAllWork) return "yellow";
+            if (!hasRemainingWork && !isDeadlineOverdue) return "blue";
+            return "green";
+        }
+
+        function escapeHtml(str) {
+            if (!str) return "";
+            return String(str).replace(/[&<>]/g, function(m) {
+                if (m === "&") return "&amp;";
+                if (m === "<") return "&lt;";
+                if (m === ">") return "&gt;";
+                return m;
+            });
+        }
+
+        function renderHomework(filter) {
+            if (allHomework.length === 0) {
+                homeworkContainer.innerHTML = '<div class="empty-state">📭 Нет заданий для отображения</div>';
+                return;
+            }
+
+            let filtered = allHomework;
+            if (filter !== "all") {
+                filtered = allHomework.filter(item => item.type === filter);
+            }
+
+            if (filtered.length === 0) {
+                homeworkContainer.innerHTML = '<div class="empty-state">📭 Нет заданий по этому предмету</div>';
+                return;
+            }
+
+            let html = '<div class="homework-list">';
+            
+            filtered.forEach(item => {
+                let tagClass = "";
+                let statusClass = "";
+                const status = getStatus(item);
+                
+                if (item.type === "algebra") {
+                    tagClass = "tag-algebra";
+                } else if (item.type === "geometry") {
+                    tagClass = "tag-geometry";
+                } else {
+                    tagClass = "tag-dop";
+                }
+                
+                statusClass = `status-${status}`;
+
+                const dateFormatted = formatDate(item.dateGiven);
+                const deadlineFormatted = formatDate(item.deadline);
+                const hasRemainingWork = hasRemaining(item);
+
+                let remainingHtml = "";
+                if (hasRemainingWork) {
+                    remainingHtml = `<div class="remaining">📌 Осталось: ${escapeHtml(item.remaining)}</div>`;
+                }
+
+                let deadlineHtml = "";
+                if (item.deadline && String(item.deadline).trim() !== "" && item.deadline !== "undefined") {
+                    deadlineHtml = `
+                        <div class="deadline">
+                            <span>⏰ Сдать до:</span>
+                            <span class="deadline-date">${deadlineFormatted}</span>
+                        </div>
+                    `;
+                }
+
+                html += `
+                    <div class="homework-card ${statusClass}">
+                        <div class="card-header">
+                            <span class="subject-tag ${tagClass}">${item.typeName}</span>
+                            ${dateFormatted ? `<span class="date">📅 задано: ${dateFormatted}</span>` : ''}
+                        </div>
+                        <div class="task">${escapeHtml(item.task)}</div>
+                        ${remainingHtml}
+                        ${deadlineHtml}
+                    </div>
+                `;
+            });
+            
+            html += '</div>';
+            homeworkContainer.innerHTML = html;
+        }
+
+        function parseHomework(rows) {
+            const algebraList = [];
+            const geometryList = [];
+            const dopList = [];
+
+            for (let i = 2; i < rows.length; i++) {
+                const row = rows[i];
+                if (!row || row.length < 2) continue;
+                
+                let dateGiven = row[0];
+                if (!dateGiven || dateGiven === "") continue;
+                
+                const dateGivenStr = String(dateGiven);
+                if (dateGivenStr.includes("АЛГЕБРА") || dateGivenStr.includes("когда") || dateGivenStr.includes("дата")) continue;
+
+                const algebraTask = row[1];
+                const algebraDeadline = row[2];
+                const algebraRemaining = row[3];
+                
+                if (algebraTask && String(algebraTask).trim() !== "" && !String(algebraTask).includes("дзг")) {
+                    algebraList.push({
+                        dateGiven: dateGiven,
+                        task: String(algebraTask).trim(),
+                        deadline: algebraDeadline,
+                        remaining: algebraRemaining ? String(algebraRemaining).trim() : "",
+                        type: "algebra",
+                        typeName: "Алгебра"
+                    });
+                }
+
+                const geometryTask = row[5];
+                const geometryDeadline = row[6];
+                const geometryRemaining = row[7];
+                
+                if (geometryTask && String(geometryTask).trim() !== "" && geometryTask !== "дз") {
+                    geometryList.push({
+                        dateGiven: dateGiven,
+                        task: String(geometryTask).trim(),
+                        deadline: geometryDeadline,
+                        remaining: geometryRemaining ? String(geometryRemaining).trim() : "",
+                        type: "geometry",
+                        typeName: "Геометрия"
+                    });
+                }
+
+                const dopTask = row[9];
+                const dopDeadline = row[10];
+                const dopRemaining = row[11];
+                
+                if (dopTask && String(dopTask).trim() !== "" && dopTask !== "дз") {
+                    dopList.push({
+                        dateGiven: dateGiven,
+                        task: String(dopTask).trim(),
+                        deadline: dopDeadline,
+                        remaining: dopRemaining ? String(dopRemaining).trim() : "",
+                        type: "dop",
+                        typeName: "Доп. математика"
+                    });
+                }
+            }
+
+            allHomework = [...algebraList, ...geometryList, ...dopList];
+            renderHomework(currentFilter);
+        }
+
+        async function loadData() {
+            homeworkContainer.innerHTML = '<div class="loading">🔄 Загрузка данных с GitHub...</div>';
+            
+            try {
+                const url = EXCEL_FILE_URL + "?t=" + Date.now();
+                const response = await fetch(url);
+                
+                if (!response.ok) {
+                    throw new Error(`Ошибка загрузки: ${response.status}`);
+                }
+                
+                const arrayBuffer = await response.arrayBuffer();
+                const data = new Uint8Array(arrayBuffer);
+                const workbook = XLSX.read(data, { type: 'array' });
+                const sheet = workbook.Sheets[workbook.SheetNames[0]];
+                const rows = XLSX.utils.sheet_to_json(sheet, { header: 1, defval: "" });
+                
+                parseHomework(rows);
+                
+                const now = new Date();
+                document.getElementById("lastUpdateTime").innerHTML = `🕐 ${now.toLocaleTimeString()}`;
+                
+            } catch (error) {
+                console.error("Ошибка:", error);
+                homeworkContainer.innerHTML = `
+                    <div class="error-message">
+                        ❌ Ошибка загрузки файла с GitHub<br>
+                        <small>${error.message}</small><br><br>
+                        <button class="refresh-btn" onclick="loadData()">🔄 Попробовать снова</button>
+                    </div>
+                `;
+            }
+        }
+
+        // Настройка табов
+        const btns = document.querySelectorAll('.subject-btn');
+        btns.forEach(btn => {
+            btn.addEventListener('click', () => {
+                btns.forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+                currentFilter = btn.getAttribute('data-subject');
+                renderHomework(currentFilter);
+            });
+        });
+
+        // Загружаем данные при открытии страницы
+        loadData();
+    </script>
+</body>
+</html>
